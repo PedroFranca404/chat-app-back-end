@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id                       Int              @id @default(autoincrement())
+  uuid                     String           @unique @default(uuid())
+  username                 String           @unique
+  email                    String           @unique
+  password                 String
+  avatarPath               String           @default("/public/default-avatar.png")
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  accessToken              AccessTokens[]
+  conversationsAsMemberOne Conversations[]  @relation("MemberOne")
+  conversationsAsMemberTwo Conversations[]  @relation("MemberTwo")
+  directMessages           DirectMessages[]
+  refreshToken             RefreshTokens[]
+}
+
+model Conversations {
+  id             Int              @id @default(autoincrement())
+  conversationId String           @default(uuid())
+  memberOneId    Int
+  memberTwoId    Int
+  memberOne      Users            @relation("MemberOne", fields: [memberOneId], references: [id])
+  memberTwo      Users            @relation("MemberTwo", fields: [memberTwoId], references: [id])
+  directMessages DirectMessages[]
+
+  @@unique([memberOneId, memberTwoId])
+}
+
+model DirectMessages {
+  id             Int           @id @default(autoincrement())
+  messageId      String        @default(uuid())
+  content        String
+  senderId       Int
+  conversationId Int
+  deleted        Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  conversation   Conversations @relation(fields: [conversationId], references: [id])
+  sender         Users         @relation(fields: [senderId], references: [id])
+}
+
+model AccessTokens {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  token      String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  revoked_at DateTime?
+  user       Users     @relation(fields: [user_id], references: [id])
+}
+
+model RefreshTokens {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  token      String    @unique
+  expires_at DateTime
+  created_at DateTime  @default(now())
+  revoked_at DateTime?
+  user       Users     @relation(fields: [user_id], references: [id])
+}
