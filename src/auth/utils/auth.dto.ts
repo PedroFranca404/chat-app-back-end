@@ -23,3 +23,13 @@ export class SignInDto {
   @IsNotEmpty()
   password: string;
 }
+
+export class signOutDto {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export class refreshDto {
+  accessToken: string;
+  refreshToken: string;
+}

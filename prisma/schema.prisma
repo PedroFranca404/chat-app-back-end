@@ -17,11 +17,9 @@ model Users {
   avatarPath               String           @default("/public/default-avatar.png")
   createdAt                DateTime         @default(now())
   updatedAt                DateTime         @updatedAt
-  accessToken              AccessTokens[]
   conversationsAsMemberOne Conversations[]  @relation("MemberOne")
   conversationsAsMemberTwo Conversations[]  @relation("MemberTwo")
   directMessages           DirectMessages[]
-  refreshToken             RefreshTokens[]
 }
 
 model Conversations {
@@ -47,24 +45,4 @@ model DirectMessages {
   updatedAt      DateTime      @updatedAt
   conversation   Conversations @relation(fields: [conversationId], references: [id])
   sender         Users         @relation(fields: [senderId], references: [id])
-}
-
-model AccessTokens {
-  id         Int       @id @default(autoincrement())
-  user_id    Int
-  token      String    @unique
-  expires_at DateTime
-  created_at DateTime  @default(now())
-  revoked_at DateTime?
-  user       Users     @relation(fields: [user_id], references: [id])
-}
-
-model RefreshTokens {
-  id         Int       @id @default(autoincrement())
-  user_id    Int
-  token      String    @unique
-  expires_at DateTime
-  created_at DateTime  @default(now())
-  revoked_at DateTime?
-  user       Users     @relation(fields: [user_id], references: [id])
 }
